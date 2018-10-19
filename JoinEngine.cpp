@@ -19,6 +19,7 @@ int JoinEngine::main_engine(){
     load_info();
     segmentation();
     indexing(relations[1]);
+    join(relations[0], relations[1]);
 }
 
 int JoinEngine::load_info(){
@@ -95,7 +96,7 @@ int JoinEngine::segmentation(){
     cout << "Both relations segmentated successfully!" << endl;
 }
 
-int JoinEngine::indexing(Relation relation){
+int JoinEngine::indexing(Relation& relation){
     //create index for every bucket made at segmentation
     relation.index_array = (Index*)malloc(h1_num_of_buckets * sizeof(Index));
 
@@ -125,12 +126,37 @@ int JoinEngine::indexing(Relation relation){
         }
     }
     cout << "Indexing completed successfully!" << endl;
-    int index = relation.index_array[2].bucket_array[0];
-    while(index != -1){
-        cout << index << " --> ";
-        int a = getchar();
-        index = relation.index_array[2].chain_array[index];
-    }
-    cout << "END" << endl;
+    // int index = relation.index_array[2].bucket_array[0];
+    // while(index != -1){
+    //     cout << index << " --> ";
+    //     int a = getchar();
+    //     index = relation.index_array[2].chain_array[index];
+    // }
+    // cout << "END" << endl;
+}
 
+int JoinEngine::join(Relation r0, Relation r1){
+    //r0 --> NOT Indexed relation
+    //r1 --> Indexed relation
+
+    //for every row in r0
+    for(int i = 0; i < r0.num_of_records; i++){
+        //for easier reading of code
+        Int_uint64_t cur_row = r0.new_column[i];
+
+        //take the bucket needed
+        int bucket_num = h1(cur_row.value);
+
+        //search index of r1 for this record
+
+        int index = r1.index_array[bucket_num].bucket_array[h2(cur_row.value)];
+        cout << " -----------------------------" << endl;
+        cout << cur_row.value << "~~~~"<< endl;
+        while(index != -1){
+            //cout << r1.new_column[index].value << " vs "  << cur_row.value << endl;
+            if(r1.new_column[index + r1.psum_array[bucket_num]].value == cur_row.value)
+                cout << r1.new_column[index + r1.psum_array[bucket_num]].index << endl;
+            index = r1.index_array[bucket_num].chain_array[index];
+        }
+    }
 }

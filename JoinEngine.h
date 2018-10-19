@@ -7,6 +7,7 @@
 #include <math.h>
 
 #include "Relation.h"
+#include "Int_uint64_t.h"
 
 using namespace std;
 
@@ -24,7 +25,8 @@ class JoinEngine{
     int main_engine();
     int load_info(); //loads relations to memory (heap)
     int segmentation();
-    int indexing(Relation relation);
+    int indexing(Relation& relation);
+    int join(Relation r0, Relation r1);
   public:
-    JoinEngine(char const *argv[]); //array of relations
+    JoinEngine(char const *argv[]);
 };

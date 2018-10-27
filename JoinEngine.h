@@ -12,21 +12,21 @@
 using namespace std;
 
 class JoinEngine{
-    //private variables
-    Relation relations[2];
+    Relation* relations[2]; //array of relations
     int h1_num_of_buckets;
     int h2_num_of_buckets;
+    int h1_num_of_bits;
+    int h2_num_of_bits;
 
-    //private functions
     //hash function for segmentation
-    inline int h1(uint64_t num){return num & (h1_num_of_buckets - 1);};
+    inline int h1(uint64_t num){return (num & (h1_num_of_buckets - 1));};
     //hash function for indexing
-    inline int h2(uint64_t num){return (num & ((h2_num_of_buckets - 1) << (int)log2(h2_num_of_buckets))) >> (int)log2(h2_num_of_buckets);};
-    int main_engine();
-    int load_info(); //loads relations to memory (heap)
-    int segmentation();
-    int indexing(Relation& relation);
-    int join(Relation r0, Relation r1);
+    inline int h2(uint64_t num){return (num & ((h2_num_of_buckets - 1) << h2_num_of_bits) >> h2_num_of_bits);};
+
   public:
     JoinEngine(char const *argv[]);
+    int load_info(); //loads relations to memory (heap)
+    int segmentation();
+    int indexing();
+    int join();
 };

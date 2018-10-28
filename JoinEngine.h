@@ -25,8 +25,24 @@ class JoinEngine{
 
   public:
     JoinEngine(char const *argv[]);
-    int load_info(); //loads relations to memory (heap)
+    /*
+    loads needed columns from each relation to memory dynamically(heap)
+    */
+    int load_relations();
+    /*
+    rearranges every column's records in order to create a new column where records
+    are placed in different order (depending on their hash values from h1 hash function)
+    */
     int segmentation();
+    /*
+    creates an index(hash table) on one of the new columns created from segmentation
+    */
     int indexing();
+    /*
+    joins two columns(relations) and return index to the list that holds the results:
+    return value = ---->[1MB mem block]---->[1MB mem block]--->(...)--->NULL
+    [1MB mem block] format : [uint64_t|uint64_t|uint64_t|uint64_t...] without '|'
+    each pair is a result from the join query
+    */
     int join();
 };

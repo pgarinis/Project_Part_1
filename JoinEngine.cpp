@@ -13,13 +13,14 @@ JoinEngine::JoinEngine(char const *argv[]){
 }
 
 
-int JoinEngine::load_info(){
+int JoinEngine::load_relations(){
+    //for every relation : open relation's binary file and load needed column
     for(int i = 0; i < 2; i++){
         //open relation's binary file
-        //format of binary file ('|' do not exist in the file):
-        //uint64_t numTuples|uint64_t numColumns|uint64_t T0C0|uint64_t T1C0|..|uint64_t TnC0|uint64_t T0C1|..|uint64_t TnC1|..|uint64_t TnCm
         ifstream infile;
         infile.open(relations[i]->get_name(), ios::binary | ios::in);
+        //format of binary file ('|' do not exist in the file):
+        //uint64_t numTuples|uint64_t numColumns|uint64_t T0C0|uint64_t T1C0|..|uint64_t TnC0|uint64_t T0C1|..|uint64_t TnC1|..|uint64_t TnCm
 
         //read number of records and number of columns in the relation
         uint64_t num_of_records, num_of_columns;
@@ -36,7 +37,7 @@ int JoinEngine::load_info(){
         //dynamically allocate space to store column
         relations[i]->set_column(column_size);
 
-        //move file pointer to the right place and read column_size bytes; then close the binary file
+        //move file cursor to the right place and read column_size bytes; then close the binary file
         infile.seekg(column_size * relations[i]->get_column_index(), ios::cur);
         infile.read((char*)relations[i]->get_column(), column_size);
         infile.close();
@@ -47,19 +48,16 @@ int JoinEngine::load_info(){
 int JoinEngine::segmentation(){
     int hash_value; //to make code more readable
     for(int i = 0; i < 2; i++){
-        //allocate relation's hist_array and initialize
+        //allocate relation's hist_array and initialise
         relations[i]->set_hist_array(h1_num_of_buckets);
         for(int j = 0; j < h1_num_of_buckets; j++)
             relations[i]->get_hist_array()[j] = 0;
 
         //calculate hist_array
-        for(int j = 0; j < relations[i]->get_num_of_records(); j++){
+        for(int j = 0, limit = relations[i]->get_num_of_records(); j < limit; j++){
             hash_value = h1(relations[i]->get_column()[j]);
             relations[i]->get_hist_array()[hash_value]++;
         }
-        // cout << "Histogram : " << endl;
-        // for(int j = 0; j < h1_num_of_buckets; j++)
-        //     cout << j << ". " << relations[i].hist_array[j] << endl;
 
         //allocate psum_array
         relations[i]->set_psum_array(h1_num_of_buckets);
@@ -68,11 +66,8 @@ int JoinEngine::segmentation(){
         relations[i]->get_psum_array()[0] = 0;
         for(int j = 1; j < h1_num_of_buckets; j++)
             relations[i]->get_psum_array()[j] = relations[i]->get_psum_array()[j-1] + relations[i]->get_hist_array()[j-1];
-        // cout << "Psum : " << endl;
-        // for(int j = 0; j < h1_num_of_buckets; j++)
-        //     cout << j << ". " << relations[i].psum_array[j] << endl;
 
-        //dynamically allocate new_column to store the column by bucket order
+        //dynamically allocate new_column to store the column by hash value order
         relations[i]->set_new_column(relations[i]->get_num_of_records());
 
         //temporal array needed to calculate new_column. this array is copy of psum array initially
@@ -80,7 +75,7 @@ int JoinEngine::segmentation(){
         for(int j = 0; j < h1_num_of_buckets; j++)
             copy_of_psum_array[j] = relations[i]->get_psum_array()[j];
 
-        //calculate new_column
+        //calculate new_column. new column is an array of tuples (uint64_t index, uint64_t value)
         for(int j = 0; j < relations[i]->get_num_of_records(); j++){
             hash_value = h1(relations[i]->get_column()[j]);
             relations[i]->get_new_column()[copy_of_psum_array[hash_value]].set(j, relations[i]->get_column()[j]);
@@ -122,13 +117,6 @@ int JoinEngine::indexing(){
         }
     }
     cout << "Indexing completed successfully!" << endl;
-    // int index = relation.index_array[2].bucket_array[0];
-    // while(index != -1){
-    //     cout << index << " --> ";
-    //     int a = getchar();
-    //     index = relation.index_array[2].chain_array[index];
-    // }
-    // cout << "END" << endl;
 }
 
 int JoinEngine::join(){
@@ -136,7 +124,7 @@ int JoinEngine::join(){
     Relation* r0 = relations[0];
     //r1 --> Indexed relation
     Relation* r1 = relations[1];
-
+    int counter=0;
     //for every row in r0
     for(int i = 0; i < r0->get_num_of_records(); i++){
         //for easier reading of code
@@ -148,15 +136,15 @@ int JoinEngine::join(){
         //search index of r1 for this record
 
         int index = r1->get_index_array()[bucket_num].get_bucket_array()[h2(cur_row.get_value())];
-        cout << " -----------------------------" << endl;
-        cout << cur_row.get_value() << "~~~~"<< endl;
+
+        cout << "Value : " << cur_row.get_value() << endl;
         while(index != -1){
             //cout << r1.new_column[index].value << " vs "  << cur_row.value << endl;
-            if(r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_value() == cur_row.get_value()){
-                //tuple [i, r1.new_column[index + r1.psum_array[bucket_num]].index]
-                cout << cur_row.get_index() + 1 << " : "<<r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_index()+1 << endl;
-            }
+            if(r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_value() == cur_row.get_value())
+                //tuple [cur_row.get_index() + 1, r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_index() + 1]
+                cout <<"[" << cur_row.get_index() + 1 << " : "<<r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_index() + 1 <<"]"<< endl;
             index = r1->get_index_array()[bucket_num].get_chain_array()[index];
         }
+        cout << " -----------------------------" << endl;
     }
 }

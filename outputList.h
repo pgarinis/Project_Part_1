@@ -7,7 +7,7 @@ using namespace std;
 
 class OutputNode {
 public:
-  void* data;
+  uint64_t* data;
   OutputNode* next;
 };
 
@@ -15,10 +15,11 @@ class OutputList {
 public:
   OutputNode* headNode;
   OutputNode* curNode;
-  long int numBuckets;
-  long int totalBytes;
+  uint64_t numBuckets;
+  uint64_t totalBytes;
 
 public:
   OutputList();
-  int InsertData(int*,int*);
+  int InsertData(uint64_t,uint64_t);
+  void printList();
 };

@@ -1,4 +1,5 @@
 #include "JoinEngine.h"
+#include "outputList.h"
 
 
 JoinEngine::JoinEngine(char const *argv[]){
@@ -124,7 +125,9 @@ int JoinEngine::join(){
     Relation* r0 = relations[0];
     //r1 --> Indexed relation
     Relation* r1 = relations[1];
-    int counter=0;
+    OutputList *outList = new OutputList();
+
+    int counter = 0;
     //for every row in r0
     for(int i = 0; i < r0->get_num_of_records(); i++){
         //for easier reading of code
@@ -140,11 +143,17 @@ int JoinEngine::join(){
         cout << "Value : " << cur_row.get_value() << endl;
         while(index != -1){
             //cout << r1.new_column[index].value << " vs "  << cur_row.value << endl;
-            if(r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_value() == cur_row.get_value())
+            if(r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_value() == cur_row.get_value()){
                 //tuple [cur_row.get_index() + 1, r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_index() + 1]
-                cout <<"[" << cur_row.get_index() + 1 << " : "<<r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_index() + 1 <<"]"<< endl;
+                //cout <<"[" << cur_row.get_index() + 1 << " : "<<r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_index() + 1 <<"]"<< endl;
+                uint64_t row1 = cur_row.get_index() + 1;
+                uint64_t row2 = r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_index() + 1;
+                printf("%lu == %lu\n",row1,row2);
+                outList->InsertData(row1, row2);
+            }
             index = r1->get_index_array()[bucket_num].get_chain_array()[index];
         }
         cout << " -----------------------------" << endl;
     }
+    outList->printList();
 }

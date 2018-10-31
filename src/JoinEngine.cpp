@@ -1,4 +1,4 @@
-#include "JoinEngine.h"
+#include "../include/JoinEngine.h"
 
 JoinEngine::JoinEngine(char const *argv[]){
     //initialise the 2 relations
@@ -32,6 +32,7 @@ int JoinEngine::load_relations(){
         infile.close();
     }
     cout << "Relations loaded successfully!" << endl;
+    return 0;
 }
 
 int JoinEngine::read_header_info(Relation* relation, ifstream& infile){

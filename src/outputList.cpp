@@ -1,4 +1,4 @@
-#include "outputList.h"
+#include "../include/outputList.h"
 #include <cstdlib>
 
 OutputList::OutputList(){

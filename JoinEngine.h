@@ -8,6 +8,7 @@
 
 #include "Relation.h"
 #include "Int_uint64_t.h"
+#include "outputList.h"
 
 using namespace std;
 
@@ -29,11 +30,27 @@ class JoinEngine{
     loads needed columns from each relation to memory dynamically(heap)
     */
     int load_relations();
+        /*
+        reads header info (number of columns and number of records) from opened binary file
+        */
+        int read_header_info(Relation* relation, ifstream& infile);
     /*
     rearranges every column's records in order to create a new column where records
     are placed in different order (depending on their hash values from h1 hash function)
     */
     int segmentation();
+        /*
+        creates and computes hist array for the relation given as input
+        */
+        int create_and_compute_hist_array(Relation* relation);
+        /*
+        creates and computes psum array for the relation given as input
+        */
+        int create_and_compute_psum_array(Relation* relation);
+        /*
+        creates and computes new column of the relation(R'), where rows are sorted by their h1 hash value
+        */
+        int create_and_compute_new_column(Relation* relation);
     /*
     creates an index(hash table) on one of the new columns created from segmentation
     */

@@ -121,19 +121,11 @@ int JoinEngine::indexing(){
 
     //for every bucket made at segmentation
     for(int j = 0; j < h1_num_of_buckets; j++){
-        Index& cur_index = relation->get_index_array()[j]; //to make code more readable
+        //store current index to a variable to make code more readable
+        Index& cur_index = relation->get_index_array()[j];
+        create_and_init_chain_and_bucket_array(cur_index, relation->get_hist_array()[j]);
 
-        //create bucket array and initialize it
-        cur_index.set_bucket_array(h2_num_of_buckets);
-        for(int i = 0; i < h2_num_of_buckets; i++)
-            cur_index.get_bucket_array()[i] = -1; //-1 means that there is not previous record in the bucket
-
-        //create chain array and initialize it
-        cur_index.set_chain_array(relation->get_hist_array()[j]);
-        for(int i = 0; i < relation->get_hist_array()[j]; i++)
-            cur_index.get_chain_array()[i] = 0;
-
-        //scan whole bucket in order to calculate chain and bucket array
+        //scan whole bucket in order to calculate its chain and bucket array
         int upper_limit = relation->get_psum_array()[j] + relation->get_hist_array()[j];
         for(int i = relation->get_psum_array()[j]; i < upper_limit; i++){
             hash_value = h2(relation->get_new_column()[i].get_value());
@@ -144,12 +136,34 @@ int JoinEngine::indexing(){
     cout << "Indexing completed successfully!" << endl;
 }
 
+int JoinEngine::create_and_init_chain_and_bucket_array(Index& index, int hist_array_value){
+    //create bucket array and initialise it
+    index.set_bucket_array(h2_num_of_buckets);
+    for(int i = 0; i < h2_num_of_buckets; i++)
+        index.get_bucket_array()[i] = -1; //-1 means that there is not previous record in the bucket
+
+    //create chain array and initialise it
+    index.set_chain_array(hist_array_value);
+    for(int i = 0; i < hist_array_value; i++)
+        index.get_chain_array()[i] = 0;
+}
+
 int JoinEngine::join(){
-    //TODO: DYNAMICALLY
     //r0 --> NOT Indexed relation
-    Relation* r0 = relations[1];
+    Relation* r0 = NULL;
     //r1 --> Indexed relation
-    Relation* r1 = relations[0];
+    Relation* r1 = NULL;
+    //choose the smallest relation to index
+    if(relations[0]->get_index_array() != NULL){
+        r1 = relations[0];
+        r0 = relations[1];
+    }
+    else{
+        r1 = relations[1];
+        r0 = relations[0];
+    }
+
+    //to store result
     OutputList *outList = new OutputList();
 
     int counter = 0;
@@ -161,8 +175,7 @@ int JoinEngine::join(){
         //take the bucket needed
         int bucket_num = h1(cur_row.get_value());
 
-        //search index of r1 for this record
-
+        //search index for this record
         int index = r1->get_index_array()[bucket_num].get_bucket_array()[h2(cur_row.get_value())];
 
         //cout << "Value : " << cur_row.get_value() << endl;
@@ -178,7 +191,12 @@ int JoinEngine::join(){
             }
             index = r1->get_index_array()[bucket_num].get_chain_array()[index];
         }
-        cout << " -----------------------------" << endl;
+        //cout << " -----------------------------" << endl;
     }
-    outList->printList();
+    //outList->printList();
+}
+
+JoinEngine::~JoinEngine(){
+    delete(relations[0]);
+    delete(relations[1]);
 }

@@ -35,6 +35,13 @@ public:
         this->psum_array = NULL;
         this->index_array = NULL;
     };
+    ~Relation(){
+        free(this->column);
+        free(this->new_column);
+        free(this->hist_array);
+        free(this->psum_array);
+        //TODO: free index array
+    }
 
     //setters
     void set_num_of_records(uint64_t num_rec){ this->num_of_records = num_rec; };

@@ -10,5 +10,6 @@ int main(int argc, char const *argv[]){
     joinEngine->segmentation();
     joinEngine->indexing();
     joinEngine->join();
+    delete(joinEngine);
     return 0;
 }

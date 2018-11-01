@@ -26,6 +26,7 @@ class JoinEngine{
 
   public:
     JoinEngine(char const *argv[]);
+    ~JoinEngine();
     /*
     loads needed columns from each relation to memory dynamically(heap)
     */
@@ -55,6 +56,10 @@ class JoinEngine{
     creates an index(hash table) on one of the new columns created from segmentation
     */
     int indexing();
+        /*
+        creates and initialises chain and bucket array from the bucket's index
+        */
+        int create_and_init_chain_and_bucket_array(Index& index, int hist_array_value);
     /*
     joins two columns(relations) and return index to the list that holds the results:
     return value = ---->[1MB mem block]---->[1MB mem block]--->(...)--->NULL

@@ -12,43 +12,76 @@ using namespace std;
 
 TEST(LoadRelationsTest, LoadRelationsToMemory) {
   char const *argv[4];
-  argv[1] = "r0";
-  argv[2] = "f0";
-  argv[3] = "r1";
-  argv[4] = "f1";
+  argv[1] = "../datasets/r0";
+  argv[2] = "0";
+  argv[3] = "../datasets/r1";
+  argv[4] = "1";
 
 
   JoinEngine *joinEngine = new JoinEngine(argv);
   EXPECT_EQ(joinEngine->load_relations(),0);
-  //EXPECT_TRUE(strcmp(joinEngine->relations[1]->get_name(),"r1"));
-
-  //delete joinEngine;
-  // ifstream infile;
-  //
-  // infile.open("r0", ios::binary | ios::in);
-  // EXPECT_TRUE(!infile.failbit);
-  // uint64_t numRec;
-  // uint64_t numCol;
-  //
-  // //read number of records and number of columns in the relation
-  // infile.read((char*)&numRec, sizeof(uint64_t));
-  // infile.read((char*)&numCol, sizeof(uint64_t));
-  // printf("There are %lu records and %lu columns in relation ", numRec, numCol);
-  // //cout << relations[i].name << endl;
-  // EXPECT_EQ (numRec, 1561);
-  // EXPECT_EQ (numCol, 3);
-  // //calculate size of column
-  // size_t column_size = sizeof(uint64_t) * numCol;
-  //
-  // //dynamically allocate space to store column
-  // uint64_t* column = (uint64_t*)malloc(column_size);
-  // EXPECT_TRUE(column != NULL);
-  // //move file pointer to the right place and read column_size bytes; then close the binary file
-  // infile.seekg(column_size * 1, ios::cur);
-  // infile.read((char*)column, column_size);
-  // EXPECT_TRUE(column != NULL);
-  // infile.close();
+  EXPECT_TRUE(joinEngine->get_relations()[1] != NULL);
+  EXPECT_TRUE(strcmp("../datasets/r1",joinEngine->get_relations()[1]->get_name().c_str()) == 0);
+  EXPECT_TRUE(joinEngine->get_relations()[1] != NULL);
+  EXPECT_TRUE(joinEngine->get_relations()[1]->get_num_of_records() > 0);
+  EXPECT_TRUE(joinEngine->get_relations()[1]->get_column() != NULL);
+  EXPECT_TRUE(joinEngine->get_relations()[1]->get_column()[0] > 0);
+  delete joinEngine;
 }
+
+TEST(SegmentationTest, ComputeHistArray) {
+  char const *argv[4];
+  argv[1] = "relation0";
+  argv[2] = "0";
+  argv[3] = "relation1";
+  argv[4] = "1";
+
+  /* Initialize join engine with a mock relation */
+  JoinEngine *joinEngine = new JoinEngine(argv);
+  joinEngine->get_relations()[0]->set_num_of_records(3);
+  size_t column_size = sizeof(uint64_t) * joinEngine->get_relations()[0]->get_num_of_records();
+  joinEngine->get_relations()[0]->set_column(column_size);
+  joinEngine->get_relations()[0]->get_column()[0] = (uint64_t) 17; // 10001
+  joinEngine->get_relations()[0]->get_column()[8] = (uint64_t) 16; // 10000
+  joinEngine->get_relations()[0]->get_column()[16] = (uint64_t) 15; // 01111
+
+  // hist array expectations
+  EXPECT_EQ(joinEngine->create_and_compute_hist_array(joinEngine->get_relations()[0]),0);
+  EXPECT_TRUE(sizeof(joinEngine->get_relations()[0]->get_hist_array()) > 0);
+  EXPECT_TRUE(joinEngine->get_relations()[0]->get_hist_array()[1] == 1);
+  // must check more
+
+
+  delete joinEngine;
+}
+
+TEST(SegmentationTest, ComputePsumArray) {
+  char const *argv[4];
+  argv[1] = "relation0";
+  argv[2] = "0";
+  argv[3] = "relation1";
+  argv[4] = "1";
+
+  /* Initialize join engine with a mock relation */
+  JoinEngine *joinEngine = new JoinEngine(argv);
+  joinEngine->get_relations()[0]->set_num_of_records(3);
+  size_t column_size = sizeof(uint64_t) * joinEngine->get_relations()[0]->get_num_of_records();
+  joinEngine->get_relations()[0]->set_column(column_size);
+  joinEngine->get_relations()[0]->get_column()[0] = (uint64_t) 17; // 10001
+  joinEngine->get_relations()[0]->get_column()[8] = (uint64_t) 16; // 10000
+  joinEngine->get_relations()[0]->get_column()[16] = (uint64_t) 15; // 01111
+
+  // hist array expectations
+  EXPECT_EQ(joinEngine->create_and_compute_psum_array(joinEngine->get_relations()[0]),0);
+  EXPECT_TRUE(sizeof(joinEngine->get_relations()[0]->get_psum_array()) > 0);
+  EXPECT_TRUE(joinEngine->get_relations()[0]->get_psum_array()[0] == -1);
+  EXPECT_TRUE(joinEngine->get_relations()[0]->get_psum_array()[1] > -1);
+  // must check more
+
+
+  delete joinEngine;
+}
+
 
 
 

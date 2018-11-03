@@ -180,7 +180,7 @@ int JoinEngine::join(){
     }
 
     //to store result
-    OutputList *outList = new OutputList();
+    //OutputList *outList = new OutputList();
 
     int counter = 0;
     //for every row in r0
@@ -203,14 +203,14 @@ int JoinEngine::join(){
                 uint64_t row1 = cur_row.get_index() + 1;
                 uint64_t row2 = r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_index() + 1;
                 //printf("%lu == %lu\n",row1,row2);
-                outList->InsertData(row1, row2);
+                //outList->InsertData(row1, row2);
             }
             index = r1->get_index_array()[bucket_num].get_chain_array()[index];
         }
         //cout << " -----------------------------" << endl;
     }
     //outList->printList();
-    delete(outList);
+    //delete(outList);
 }
 
 JoinEngine::~JoinEngine(){

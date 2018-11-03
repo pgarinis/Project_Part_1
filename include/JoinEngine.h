@@ -41,7 +41,7 @@ class JoinEngine{
     //hash function for segmentation
     inline int h1(uint64_t num){return (num & (h1_num_of_buckets - 1));};
     //hash function for indexing
-    inline int h2(uint64_t num){return (num & ((h2_num_of_buckets - 1) << h2_num_of_bits) >> h2_num_of_bits);};
+    inline int h2(uint64_t num){return ((num & ((h2_num_of_buckets - 1) << h2_num_of_bits)) >> h2_num_of_bits);};
 
     /*
     loads needed columns from each relation to memory dynamically(heap)

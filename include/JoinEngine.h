@@ -30,6 +30,14 @@ class JoinEngine{
       return relations;
     }
 
+    int get_h1_num_of_buckets(){
+      return h1_num_of_buckets;
+    }
+
+    int get_h2_num_of_buckets(){
+      return h2_num_of_buckets;
+    }
+
     //hash function for segmentation
     inline int h1(uint64_t num){return (num & (h1_num_of_buckets - 1));};
     //hash function for indexing

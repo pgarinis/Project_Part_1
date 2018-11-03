@@ -20,6 +20,7 @@ public:
 
 public:
   OutputList();
+  ~OutputList();
   int InsertData(uint64_t,uint64_t);
   void printList();
 };

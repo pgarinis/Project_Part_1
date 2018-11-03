@@ -14,7 +14,7 @@ using namespace std;
 //TODO: more automation and data generation functions
 
 TEST(LoadRelationsTest, LoadRelationsToMemory) {
-  char const *argv[4];
+  char const *argv[5];
   argv[1] = "../datasets/r0";
   argv[2] = "0";
   argv[3] = "../datasets/r1";
@@ -23,17 +23,17 @@ TEST(LoadRelationsTest, LoadRelationsToMemory) {
   JoinEngine *joinEngine = new JoinEngine(argv);
   EXPECT_EQ(joinEngine->load_relations(),0);
 
-  EXPECT_TRUE(joinEngine->get_relations()[1] != NULL);
+  EXPECT_TRUE(joinEngine->get_relations()[0] != NULL);
   EXPECT_TRUE(strcmp("../datasets/r1",joinEngine->get_relations()[1]->get_name().c_str()) == 0);
   EXPECT_TRUE(joinEngine->get_relations()[1] != NULL);
   EXPECT_TRUE(joinEngine->get_relations()[1]->get_num_of_records() > 0);
   EXPECT_TRUE(joinEngine->get_relations()[1]->get_column() != NULL);
-  EXPECT_TRUE(joinEngine->get_relations()[1]->get_column()[0] > 0);
+  EXPECT_TRUE(joinEngine->get_relations()[1]->get_column()[0] >= 0);
   delete joinEngine;
 }
 
 TEST(SegmentationTest, ComputeHistArray) {
-  char const *argv[4];
+  char const *argv[5];
   argv[1] = "relation0";
   argv[2] = "0";
   argv[3] = "relation1";
@@ -59,7 +59,7 @@ TEST(SegmentationTest, ComputeHistArray) {
 }
 
 TEST(SegmentationTest, ComputePsumArray) {
-  char const *argv[4];
+  char const *argv[5];
   argv[1] = "relation0";
   argv[2] = "0";
   argv[3] = "relation1";
@@ -85,7 +85,7 @@ TEST(SegmentationTest, ComputePsumArray) {
 }
 
 TEST(SegmentationTest, ComputeNewColumn) {
-  char const *argv[4];
+  char const *argv[5];
   argv[1] = "relation0";
   argv[2] = "0";
   argv[3] = "relation1";
@@ -120,7 +120,7 @@ TEST(SegmentationTest, ComputeNewColumn) {
 }
 
 TEST(IndexingTest, InitIndex) {
-  char const *argv[4];
+  char const *argv[5];
   argv[1] = "relation0";
   argv[2] = "0";
   argv[3] = "relation1";
@@ -144,7 +144,7 @@ TEST(IndexingTest, InitIndex) {
 }
 
 TEST(IndexingTest, CalculateIndex) {
-  char const *argv[4];
+  char const *argv[5];
   argv[1] = "relation0";
   argv[2] = "0";
   argv[3] = "relation1";
@@ -216,6 +216,8 @@ TEST(OutputListTest, InsertData) {
   EXPECT_TRUE(outList->headNode->data[0] == 10);
   EXPECT_TRUE(outList->headNode->data[1] == 100);
   EXPECT_TRUE(outList->headNode->data[2] == 5);
+
+  delete outList
 
 }
 

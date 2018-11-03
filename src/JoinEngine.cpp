@@ -210,9 +210,22 @@ int JoinEngine::join(){
         //cout << " -----------------------------" << endl;
     }
     //outList->printList();
+    delete(outList);
 }
 
 JoinEngine::~JoinEngine(){
+    Index* index;
+    if(relations[0]->get_index_array() != NULL)
+        index = relations[0]->get_index_array();
+    else
+        index = relations[1]->get_index_array();
+
+    for(int i = 0; i < h1_num_of_buckets; i++){
+        free(index[i].get_chain_array());
+        free(index[i].get_bucket_array());
+    }
+    free(index);
+
     delete(relations[0]);
     delete(relations[1]);
 }

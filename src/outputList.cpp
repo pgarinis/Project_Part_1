@@ -8,6 +8,15 @@ OutputList::OutputList(){
     this->totalBytes = 0;
 }
 
+OutputList::~OutputList(){
+  OutputNode *currentNode = this->headNode;
+  while(currentNode != NULL){
+    OutputNode *temp = currentNode;
+    currentNode = currentNode->next;
+    free(temp);
+  }
+}
+
 void OutputList::printList(){
   OutputNode *currentNode = this->headNode;
   while(currentNode != NULL){

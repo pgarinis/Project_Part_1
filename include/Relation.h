@@ -39,7 +39,6 @@ public:
         free(this->new_column);
         free(this->hist_array);
         free(this->psum_array);
-        //TODO: free index array
     }
 
     //setters

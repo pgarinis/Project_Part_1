@@ -4,8 +4,7 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
-
-#include "Int_uint64_t.h"
+#include "NewColumnEntry.h"
 #include "Index.h"
 
 using namespace std;
@@ -17,7 +16,7 @@ class Relation{
     uint64_t num_of_records;
     uint64_t num_of_columns;//is it needed?
     uint64_t* column;
-    Int_uint64_t* new_column;
+    NewColumnEntry* new_column;
 
     int* hist_array;
     int* psum_array;
@@ -47,7 +46,7 @@ public:
     void set_num_of_records(uint64_t num_rec){ this->num_of_records = num_rec; };
     void set_num_of_columns(uint64_t num_col){ this->num_of_columns = num_col; };
     void set_column(uint64_t size){ this->column = (uint64_t*)malloc(size * sizeof(uint64_t)); };
-    void set_new_column(uint64_t size){ this->new_column = (Int_uint64_t*)malloc(size * sizeof(Int_uint64_t)); };
+    void set_new_column(uint64_t size){ this->new_column = (NewColumnEntry*)malloc(size * sizeof(NewColumnEntry)); };
     void set_hist_array(int size){ this->hist_array = (int*)malloc(size * sizeof(int)); };
     void set_psum_array(int size){ this->psum_array = (int*)malloc(size * sizeof(int)); };
     void set_index_array(int size){ this->index_array = (Index*)malloc(size * sizeof(Index)); };
@@ -58,7 +57,7 @@ public:
     uint64_t get_num_of_records(){ return this->num_of_records; };
     uint64_t get_num_of_columns(){ return this->num_of_columns; };
     uint64_t* get_column(){ return this->column; };
-    Int_uint64_t* get_new_column(){ return this->new_column; };
+    NewColumnEntry* get_new_column(){ return this->new_column; };
     int* get_hist_array(){ return this->hist_array; };
     int* get_psum_array(){ return this->psum_array; }
     Index* get_index_array(){ return this->index_array; };

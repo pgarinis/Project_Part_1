@@ -11,6 +11,17 @@ JoinEngine::JoinEngine(char const *argv[]){
     h2_num_of_bits = (int)log2(h2_num_of_buckets);
 }
 
+JoinEngine::JoinEngine(char const *argv[],int numBuckets){
+    //initialise the 2 relations
+    relations[0] = new Relation(argv[1], (uint64_t)atoi(argv[2]));
+    relations[1] = new Relation(argv[3], (uint64_t)atoi(argv[4]));
+
+    h1_num_of_buckets = numBuckets;
+    h1_num_of_bits = (int)log2( h1_num_of_buckets);
+    h2_num_of_buckets = numBuckets;
+    h2_num_of_bits = (int)log2(h2_num_of_buckets);
+}
+
 
 int JoinEngine::load_relations(){
     //for every relation : open relation's binary file and load needed column
@@ -73,6 +84,7 @@ int JoinEngine::create_and_compute_hist_array(Relation* relation){
         hash_value = h1(relation->get_column()[j]);
         relation->get_hist_array()[hash_value]++;
     }
+    return 0;
 }
 
 int JoinEngine::create_and_compute_psum_array(Relation* relation){
@@ -83,6 +95,7 @@ int JoinEngine::create_and_compute_psum_array(Relation* relation){
     relation->get_psum_array()[0] = 0;
     for(int j = 1; j < h1_num_of_buckets; j++)
         relation->get_psum_array()[j] = relation->get_psum_array()[j-1] + relation->get_hist_array()[j-1];
+    return 0;
 }
 
 int JoinEngine::create_and_compute_new_column(Relation* relation){
@@ -103,6 +116,7 @@ int JoinEngine::create_and_compute_new_column(Relation* relation){
         relation->get_new_column()[copy_of_psum_array[hash_value]].set(j, relation->get_column()[j]);
         copy_of_psum_array[hash_value]++;
     }
+    return 0;
 }
 
 int JoinEngine::indexing(){
@@ -124,7 +138,6 @@ int JoinEngine::indexing(){
         //store current index to a variable to make code more readable
         Index& cur_index = relation->get_index_array()[j];
         create_and_init_chain_and_bucket_array(cur_index, relation->get_hist_array()[j]);
-
         //scan whole bucket in order to calculate its chain and bucket array
         int upper_limit = relation->get_psum_array()[j] + relation->get_hist_array()[j];
         for(int i = relation->get_psum_array()[j]; i < upper_limit; i++){
@@ -134,6 +147,7 @@ int JoinEngine::indexing(){
         }
     }
     cout << "Indexing completed successfully!" << endl;
+    return 0;
 }
 
 int JoinEngine::create_and_init_chain_and_bucket_array(Index& index, int hist_array_value){
@@ -146,6 +160,8 @@ int JoinEngine::create_and_init_chain_and_bucket_array(Index& index, int hist_ar
     index.set_chain_array(hist_array_value);
     for(int i = 0; i < hist_array_value; i++)
         index.get_chain_array()[i] = 0;
+
+    return 0;
 }
 
 int JoinEngine::join(){
@@ -153,7 +169,7 @@ int JoinEngine::join(){
     Relation* r0 = NULL;
     //r1 --> Indexed relation
     Relation* r1 = NULL;
-    //choose the smallest relation to index
+
     if(relations[0]->get_index_array() != NULL){
         r1 = relations[0];
         r0 = relations[1];
@@ -170,7 +186,7 @@ int JoinEngine::join(){
     //for every row in r0
     for(int i = 0; i < r0->get_num_of_records(); i++){
         //for easier reading of code
-        Int_uint64_t cur_row = r0->get_new_column()[i];
+        NewColumnEntry cur_row = r0->get_new_column()[i];
 
         //take the bucket needed
         int bucket_num = h1(cur_row.get_value());

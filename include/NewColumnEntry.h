@@ -6,7 +6,7 @@
 #include <cstring>
 #include <cstdlib>
 
-class Int_uint64_t{
+class NewColumnEntry{
     int index;
     uint64_t value;
 public:

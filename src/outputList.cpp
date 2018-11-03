@@ -11,8 +11,8 @@ OutputList::OutputList(){
 void OutputList::printList(){
   OutputNode *currentNode = this->headNode;
   while(currentNode != NULL){
-    for(int i = 0; i < 1024*1024 && i < this->totalBytes; i+= 2*sizeof(uint64_t)){
-      printf("rowId: %lu == rowId: %lu\n",*(this->curNode->data+i),*(this->curNode->data+i+sizeof(uint64_t)));
+    for(int i = 0; i < (1024*1024)/sizeof(uint64_t) && i < this->totalBytes/sizeof(uint64_t); i+=2){
+      printf("rowId: %lu == rowId: %lu\n",this->curNode->data[i],this->curNode->data[i+1]);
       //int c = getchar();
     }
     currentNode = currentNode->next;
@@ -27,7 +27,7 @@ int OutputList::InsertData(uint64_t row1, uint64_t row2){
     outNode->data = (uint64_t*)malloc(1024*1024);
     outNode->next = NULL;
     outNode->data[0] = row1;
-    outNode->data[sizeof(row1)] = row2;
+    outNode->data[1] = row2;
 
     this->headNode = outNode;
     this->curNode = outNode;
@@ -48,14 +48,14 @@ int OutputList::InsertData(uint64_t row1, uint64_t row2){
     this->numBuckets++;
 
     outNode->data[0] = row1;
-    outNode->data[sizeof(row1)] = row2;
+    outNode->data[1] = row2;
     this->totalBytes += sizeToInsert;
     return 0;
   }
   else{
     //insert data to node with node_index
-    this->curNode->data[node_offset] = row1;
-    this->curNode->data[node_offset+ sizeof(row1)] = row2;
+    this->curNode->data[node_offset/sizeof(uint64_t)] = row1;
+    this->curNode->data[(node_offset+ sizeof(row1))/sizeof(uint64_t)] = row2;
     this->totalBytes += sizeToInsert;
     return 0;
   }

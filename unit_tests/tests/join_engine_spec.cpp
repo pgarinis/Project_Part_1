@@ -127,10 +127,10 @@ TEST(IndexingTest, InitIndex) {
   argv[4] = "1";
 
   /* Initialize join engine with a mock relation */
-  JoinEngine *joinEngine = new JoinEngine(argv);
+  JoinEngine *joinEngine = new JoinEngine(argv,4);
   joinEngine->get_relations()[0]->set_num_of_records(3);
   size_t column_size = sizeof(uint64_t) * joinEngine->get_relations()[0]->get_num_of_records();
-  joinEngine->get_relations()[0]->set_index_array(16);
+  joinEngine->get_relations()[0]->set_index_array(4);
   Index& cur_index = joinEngine->get_relations()[0]->get_index_array()[0];
 
   //index expectations
@@ -140,7 +140,7 @@ TEST(IndexingTest, InitIndex) {
   EXPECT_TRUE(cur_index.get_chain_array()[0] == 0);
   EXPECT_TRUE(cur_index.get_chain_array()[1] == 0);
 
-  //delete joinEngine;
+  delete joinEngine;
 }
 
 TEST(IndexingTest, CalculateIndex) {

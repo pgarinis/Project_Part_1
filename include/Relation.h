@@ -39,6 +39,7 @@ public:
         free(this->new_column);
         free(this->hist_array);
         free(this->psum_array);
+        delete[] index_array;
     }
 
     //setters
@@ -48,7 +49,10 @@ public:
     void set_new_column(uint64_t size){ this->new_column = (NewColumnEntry*)malloc(size * sizeof(NewColumnEntry)); };
     void set_hist_array(int size){ this->hist_array = (int*)malloc(size * sizeof(int)); };
     void set_psum_array(int size){ this->psum_array = (int*)malloc(size * sizeof(int)); };
-    void set_index_array(int size){ this->index_array = (Index*)malloc(size * sizeof(Index)); };
+    void set_index_array(int size){
+      this->index_array = new Index[size];
+
+    };
 
     //getters
     string get_name(){ return this->name;};

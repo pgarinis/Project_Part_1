@@ -230,14 +230,15 @@ JoinEngine::~JoinEngine(){
     else
         index = relations[1]->get_index_array();
 
-    for(int i = 0; i < h1_num_of_buckets; i++){
-      if(index != NULL){
-        free(index[i].get_chain_array());
-        free(index[i].get_bucket_array());
-      }
-    }
-    if(index != NULL)
-      free(index);
+    // if(index != NULL){
+    //   for(int i = 0; i < h1_num_of_buckets; i++){
+    //     if(index[i].get_chain_array() != NULL)
+    //       free(index[i].get_chain_array());
+    //     if(index[i].get_bucket_array() != NULL)
+    //       free(index[i].get_bucket_array());
+    //   }
+    // }
+    
 
     if(relations[0] != NULL)
       delete(relations[0]);

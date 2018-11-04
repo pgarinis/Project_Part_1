@@ -23,7 +23,7 @@ JoinEngine::JoinEngine(char const *argv[],int numBuckets){
 
     h1_num_of_buckets = numBuckets;
     h1_num_of_bits = (int)log2( h1_num_of_buckets);
-    h2_num_of_buckets = numBuckets;
+    h2_num_of_buckets = 16699;
     h2_num_of_bits = (int)log2(h2_num_of_buckets);
 
     result = NULL;

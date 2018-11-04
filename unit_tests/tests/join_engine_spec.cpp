@@ -40,7 +40,7 @@ TEST(SegmentationTest, ComputeHistArray) {
   argv[4] = "1";
 
   /* Initialize join engine with a mock relation */
-  JoinEngine *joinEngine = new JoinEngine(argv);
+  JoinEngine *joinEngine = new JoinEngine(argv,16);
   joinEngine->get_relations()[0]->set_num_of_records(3);
   size_t column_size = sizeof(uint64_t) * joinEngine->get_relations()[0]->get_num_of_records();
   joinEngine->get_relations()[0]->set_column(column_size);
@@ -66,7 +66,7 @@ TEST(SegmentationTest, ComputePsumArray) {
   argv[4] = "1";
 
   /* Initialize join engine with a mock hist array */
-  JoinEngine *joinEngine = new JoinEngine(argv);
+  JoinEngine *joinEngine = new JoinEngine(argv,16);
   joinEngine->get_relations()[0]->set_num_of_records(3);
   joinEngine->get_relations()[0]->set_hist_array(16);
   joinEngine->get_relations()[0]->get_hist_array()[0] = 2;
@@ -92,7 +92,7 @@ TEST(SegmentationTest, ComputeNewColumn) {
   argv[4] = "1";
 
   /* Initialize join engine with a mock relation */
-  JoinEngine *joinEngine = new JoinEngine(argv);
+  JoinEngine *joinEngine = new JoinEngine(argv,16);
   joinEngine->get_relations()[0]->set_num_of_records(3);
   size_t column_size = sizeof(uint64_t) * joinEngine->get_relations()[0]->get_num_of_records();
   joinEngine->get_relations()[0]->set_column(column_size);
@@ -140,7 +140,7 @@ TEST(IndexingTest, InitIndex) {
   EXPECT_TRUE(cur_index.get_chain_array()[0] == 0);
   EXPECT_TRUE(cur_index.get_chain_array()[1] == 0);
 
-  delete joinEngine;
+  //delete joinEngine;
 }
 
 TEST(IndexingTest, CalculateIndex) {
@@ -154,22 +154,22 @@ TEST(IndexingTest, CalculateIndex) {
   JoinEngine *joinEngine = new JoinEngine(argv,4);
   joinEngine->get_relations()[0]->set_num_of_records(3); //will choose to index the smallest
   joinEngine->get_relations()[1]->set_num_of_records(10);
-  joinEngine->get_relations()[0]->set_hist_array(4);
+  joinEngine->get_relations()[0]->set_hist_array(16);
   joinEngine->get_relations()[0]->get_hist_array()[0] = 2;
   joinEngine->get_relations()[0]->get_hist_array()[1] = 1;
   joinEngine->get_relations()[0]->get_hist_array()[2] = 0;
   joinEngine->get_relations()[0]->get_hist_array()[3] = 0;
 
-  joinEngine->get_relations()[0]->set_psum_array(4);
+  joinEngine->get_relations()[0]->set_psum_array(16);
   joinEngine->get_relations()[0]->get_psum_array()[0] = 0;
   joinEngine->get_relations()[0]->get_psum_array()[1] = 2;
   joinEngine->get_relations()[0]->get_psum_array()[2] = 3;
   joinEngine->get_relations()[0]->get_psum_array()[3] = 3;
 
-  joinEngine->get_relations()[0]->set_new_column(3);
-  joinEngine->get_relations()[0]->get_new_column()[0].set(1,16);
-  joinEngine->get_relations()[0]->get_new_column()[1].set(2,32);
-  joinEngine->get_relations()[0]->get_new_column()[2].set(0,17);
+  joinEngine->get_relations()[0]->set_new_column(16);
+  joinEngine->get_relations()[0]->get_new_column()[0].set(1,16699);
+  joinEngine->get_relations()[0]->get_new_column()[1].set(2,2*16699);
+  joinEngine->get_relations()[0]->get_new_column()[2].set(0,16700);
 
   //index expectations
   EXPECT_EQ(joinEngine->indexing(),0);
@@ -177,10 +177,10 @@ TEST(IndexingTest, CalculateIndex) {
   EXPECT_TRUE(joinEngine->get_relations()[0]->get_index_array()[0].get_chain_array() != NULL);
   EXPECT_TRUE(joinEngine->get_relations()[0]->get_index_array()[0].get_chain_array()[0] == -1);
   EXPECT_TRUE(joinEngine->get_relations()[0]->get_index_array()[0].get_chain_array()[1] == 0);
-  EXPECT_TRUE(joinEngine->get_relations()[0]->get_index_array()[0].get_bucket_array()[joinEngine->h2(16)] == 1);
+  EXPECT_TRUE(joinEngine->get_relations()[0]->get_index_array()[0].get_bucket_array()[joinEngine->h2(16699)] == 1);
 
   EXPECT_TRUE(joinEngine->get_relations()[0]->get_index_array()[1].get_chain_array()[0] == -1);
-  EXPECT_TRUE(joinEngine->get_relations()[0]->get_index_array()[1].get_bucket_array()[joinEngine->h2(17)] == 0);
+  EXPECT_TRUE(joinEngine->get_relations()[0]->get_index_array()[1].get_bucket_array()[joinEngine->h2(16700)] == 0);
 
   delete joinEngine;
 }
@@ -217,7 +217,7 @@ TEST(OutputListTest, InsertData) {
   EXPECT_TRUE(outList->headNode->data[1] == 100);
   EXPECT_TRUE(outList->headNode->data[2] == 5);
 
-  delete outList
+  delete outList;
 
 }
 

@@ -9,6 +9,7 @@ class OutputNode {
 public:
   uint64_t* data;
   OutputNode* next;
+  ~OutputNode();
 };
 
 class OutputList {

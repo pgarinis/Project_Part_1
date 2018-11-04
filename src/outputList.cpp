@@ -1,6 +1,10 @@
 #include "../include/outputList.h"
 #include <cstdlib>
 
+OutputNode::~OutputNode(){
+  free(this->data);
+}
+
 OutputList::OutputList(){
     this->numBuckets = 0;
     this->headNode = NULL;
@@ -13,7 +17,7 @@ OutputList::~OutputList(){
   while(currentNode != NULL){
     OutputNode *temp = currentNode;
     currentNode = currentNode->next;
-    free(temp);
+    delete(temp);
   }
 }
 

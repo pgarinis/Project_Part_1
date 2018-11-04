@@ -1,4 +1,4 @@
-## Uoa Software Enginnering Project_Part_1
+## Uoa Software Engineering Project_Part_1
 
 ### Introduction:<br><br>
 * This repository implements an engine that performs join operations in relations.<br>
@@ -10,6 +10,13 @@ uint64_t numTuples|uint64_t numColumns|uint64_t T0C0|uint64_t T1C0|..|uint64_t T
 * Unit tests are developed with the help of the google test library
 * Compile & Run Script included
 * Compile & run Script for unit tests included
+* 8 million & 8 million records Join in ~1.8 sec (i7-7700HQ)<br>
+##### Future Releases: <br>
+* Support for multiple relations <br>
+* Support for multiple joins <br>
+* Support for more operators <br>
+* Multithreading support <br> 
+
 <hr>
 
 ### Loading Relations: <br>
@@ -36,5 +43,8 @@ The index it is actually a second hash map and consists of a bucket and a chain 
 
 ##### Relations Join <br>
 JoinEngine class implements int join(); <br>
-This function scans the entries of the non-indexed relation, hashes them properly and matches them with the records of the indexed relation<br>
-The matching results are written in the output List
+This function scans the entries of the non-indexed relation, hashes them properly to find the matching bucket and hashes them again to match them with the records inside the bucket <br>
+The matching results are written in the output List <br>
+
+### Join Results <br>
+Join Engine class holds an output list with the results to be used later

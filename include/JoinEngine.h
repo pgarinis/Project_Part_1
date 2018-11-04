@@ -10,6 +10,10 @@
 #include "NewColumnEntry.h"
 #include "outputList.h"
 
+#define FILENOTFOUND 1
+#define UNEXPECTEDERROR 2
+#define BADALLOC 3
+
 using namespace std;
 
 class JoinEngine{
@@ -18,14 +22,14 @@ class JoinEngine{
     int h2_num_of_buckets;
     int h1_num_of_bits;
     int h2_num_of_bits;
+    OutputList *result;
+    int err_code;
 
   public:
     JoinEngine(char const *argv[]);
     JoinEngine(char const *argv[],int numBuckets);
     ~JoinEngine();
-    /*
-    getters - setters
-    */
+    /*  getters - setters */
     Relation** get_relations(){
       return relations;
     }
@@ -38,10 +42,43 @@ class JoinEngine{
       return h2_num_of_buckets;
     }
 
+    OutputList* get_result(){
+      return result;
+    }
+
+
+    /* Error Handler */
+    void error_handler(){
+      //some errors may not terminate joinengine
+      if(err_code == FILENOTFOUND){
+        printf("ERROR: File not found\nEXITING\n");
+        delete this;
+        exit(FILENOTFOUND);
+      }
+      if(err_code == UNEXPECTEDERROR){
+        printf("ERROR: Unexpected Error->Contact Admins\nEXITING\n");
+        delete this;
+        exit(UNEXPECTEDERROR);
+      }
+      if(err_code == BADALLOC){
+        delete this;
+        printf("ERROR: Bad Allocation->Not enough Memory?\nEXITING\n");
+        exit(BADALLOC);
+      }
+    }
+
+    void throw_err(int code){
+      err_code = code;
+      error_handler();
+    }
+
+
     //hash function for segmentation
     inline int h1(uint64_t num){return (num & (h1_num_of_buckets - 1));};
+    //inline int h1(uint64_t num){return num % 131;};
     //hash function for indexing
-    inline int h2(uint64_t num){return ((num & ((h2_num_of_buckets - 1) << h2_num_of_bits)) >> h2_num_of_bits);};
+    //inline int h2(uint64_t num){return ((num & ((h2_num_of_buckets - 1) << h2_num_of_bits)) >> h2_num_of_bits);};
+    inline int h2(uint64_t num){return num % 16699;};
 
     /*
     loads needed columns from each relation to memory dynamically(heap)

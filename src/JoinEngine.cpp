@@ -2,17 +2,22 @@
 
 JoinEngine::JoinEngine(char const *argv[]){
     //initialise the 2 relations
+    err_code = 0;
     relations[0] = new Relation(argv[1], (uint64_t)atoi(argv[2]));
     relations[1] = new Relation(argv[3], (uint64_t)atoi(argv[4]));
 
-    h1_num_of_buckets = 16;
+    //sysconf(_SC_LEVEL1_DCACHE_LINESIZE) get l1 cache size
+    h1_num_of_buckets = 512;
     h1_num_of_bits = (int)log2( h1_num_of_buckets);
-    h2_num_of_buckets = 16;
+    h2_num_of_buckets = 16699;
     h2_num_of_bits = (int)log2(h2_num_of_buckets);
+
+    result = NULL;
 }
 
 JoinEngine::JoinEngine(char const *argv[],int numBuckets){
     //initialise the 2 relations
+    err_code = 0;
     relations[0] = new Relation(argv[1], (uint64_t)atoi(argv[2]));
     relations[1] = new Relation(argv[3], (uint64_t)atoi(argv[4]));
 
@@ -20,6 +25,8 @@ JoinEngine::JoinEngine(char const *argv[],int numBuckets){
     h1_num_of_bits = (int)log2( h1_num_of_buckets);
     h2_num_of_buckets = numBuckets;
     h2_num_of_bits = (int)log2(h2_num_of_buckets);
+
+    result = NULL;
 }
 
 
@@ -29,6 +36,8 @@ int JoinEngine::load_relations(){
         //open relation's binary file
         ifstream infile;
         infile.open(relations[i]->get_name(), ios::binary | ios::in);
+        if(infile.fail())
+          throw_err(FILENOTFOUND);
         //format of binary file ('|' do not exist in the file):
         //uint64_t numTuples|uint64_t numColumns|uint64_t T0C0|uint64_t T1C0|..|uint64_t TnC0|uint64_t T0C1|..|uint64_t TnC1|..|uint64_t TnCm
         read_header_info(relations[i], infile);
@@ -68,6 +77,7 @@ int JoinEngine::segmentation(){
         create_and_compute_new_column(relations[i]);
     }
     cout << "Both relations segmentated successfully!" << endl;
+    return 0;
 }
 
 int JoinEngine::create_and_compute_hist_array(Relation* relation){
@@ -85,6 +95,7 @@ int JoinEngine::create_and_compute_hist_array(Relation* relation){
         relation->get_hist_array()[hash_value]++;
     }
     return 0;
+
 }
 
 int JoinEngine::create_and_compute_psum_array(Relation* relation){
@@ -180,7 +191,7 @@ int JoinEngine::join(){
     }
 
     //to store result
-    //OutputList *outList = new OutputList();
+    this->result = new OutputList();
 
     int counter = 0;
     //for every row in r0
@@ -203,14 +214,13 @@ int JoinEngine::join(){
                 uint64_t row1 = cur_row.get_index() + 1;
                 uint64_t row2 = r1->get_new_column()[index + r1->get_psum_array()[bucket_num]].get_index() + 1;
                 //printf("%lu == %lu\n",row1,row2);
-                //outList->InsertData(row1, row2);
+                this->result->InsertData(row1, row2);
             }
             index = r1->get_index_array()[bucket_num].get_chain_array()[index];
         }
         //cout << " -----------------------------" << endl;
     }
-    //outList->printList();
-    //delete(outList);
+    return 0;
 }
 
 JoinEngine::~JoinEngine(){
@@ -221,11 +231,18 @@ JoinEngine::~JoinEngine(){
         index = relations[1]->get_index_array();
 
     for(int i = 0; i < h1_num_of_buckets; i++){
+      if(index != NULL){
         free(index[i].get_chain_array());
         free(index[i].get_bucket_array());
+      }
     }
-    free(index);
+    if(index != NULL)
+      free(index);
 
-    delete(relations[0]);
-    delete(relations[1]);
+    if(relations[0] != NULL)
+      delete(relations[0]);
+    if(relations[1] != NULL)
+      delete(relations[1]);
+    if(result != NULL)
+      delete(result);
 }
